@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>职高婴儿进化录</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-wrapper">
+    <header class="game-header">
+      <h1>职高婴儿进化录</h1>
+      <p>一个荒诞幻想风格的新生婴儿，正在普通职业高中里努力进化。</p>
+    </header>
 
+    <main class="game-main">
+      <section class="panel hero-panel">
+        <div class="baby-avatar">
+          <div class="baby-head">
+            <div class="baby-eye left"></div>
+            <div class="baby-eye right"></div>
+            <div class="baby-mouth"></div>
+          </div>
+          <div class="baby-body"></div>
+        </div>
+
+        <div class="hero-info">
+          <h2>新生婴儿档案</h2>
+          <p id="heroLevelText">当前阶段：职高新生婴儿</p>
+          <p id="storyText">
+            你刚刚被分配到一所普通职业高中。你不会走路，但你有无限成长潜力。
+          </p>
+        </div>
+      </section>
+
+      <section class="panel stats-panel">
+        <h2>属性系统</h2>
+
+        <div class="growth-box">
+          <span>成长点数</span>
+          <strong id="growthPoints">5</strong>
+        </div>
+
+        <div class="stat-list">
+          <div class="stat-item">
+            <div>
+              <strong>脑 brain</strong>
+              <p>决定发明工具能力</p>
+            </div>
+            <span id="brainValue">0</span>
+            <button onclick="addStat('brain')">加点</button>
+          </div>
+
+          <div class="stat-item">
+            <div>
+              <strong>足 feet</strong>
+              <p>决定移动速度</p>
+            </div>
+            <span id="feetValue">0</span>
+            <button onclick="addStat('feet')">加点</button>
+          </div>
+
+          <div class="stat-item">
+            <div>
+              <strong>文口 speech</strong>
+              <p>决定表达能力</p>
+            </div>
+            <span id="speechValue">0</span>
+            <button onclick="addStat('speech')">加点</button>
+          </div>
+
+          <div class="stat-item">
+            <div>
+              <strong>武口 bite</strong>
+              <p>决定牙齿锋利程度</p>
+            </div>
+            <span id="biteValue">0</span>
+            <button onclick="addStat('bite')">加点</button>
+          </div>
+
+          <div class="stat-item">
+            <div>
+              <strong>手 hands</strong>
+              <p>决定攻击速度和工具使用能力</p>
+            </div>
+            <span id="handsValue">0</span>
+            <button onclick="addStat('hands')">加点</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel map-panel">
+        <h2>校园地图</h2>
+        <p class="tip">点击地点触发随机校园事件。</p>
+
+        <div class="map-buttons">
+          <button onclick="visitArea('classroom')">教室</button>
+          <button onclick="visitArea('canteen')">食堂</button>
+          <button onclick="visitArea('playground')">操场</button>
+          <button onclick="visitArea('workshop')">实训车间</button>
+          <button onclick="visitArea('dorm')">宿舍</button>
+        </div>
+      </section>
+
+      <section class="panel tool-panel">
+        <h2>已解锁工具</h2>
+        <ul id="toolList">
+          <li>暂无工具</li>
+        </ul>
+      </section>
+
+      <section class="panel progress-panel">
+        <h2>通关进度</h2>
+        <div class="progress-bar">
+          <div id="progressFill"></div>
+        </div>
+        <p id="progressText">进度：0 / 100</p>
+      </section>
+
+      <section class="panel event-panel">
+        <h2>事件记录</h2>
+        <div id="eventLog">
+          欢迎来到职高。你的婴儿进化之路开始了。
+        </div>
+      </section>
+
+      <section class="panel ending-panel" id="endingPanel">
+        <h2>结局</h2>
+        <p id="endingText"></p>
+      </section>
+
+      <div class="reset-area">
+        <button class="reset-button" onclick="resetGame()">重新开始</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
