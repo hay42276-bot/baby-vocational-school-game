@@ -235,6 +235,7 @@ button:active {
 .tip {
   color: #546e7a;
   margin-bottom: 14px;
+  line-height: 1.6;
 }
 
 .map-buttons {
@@ -347,6 +348,17 @@ button:active {
   font-size: 18px;
   line-height: 1.8;
   font-weight: bold;
+}
+
+.ending-panel.death-ending {
+  background: linear-gradient(135deg, #2b0000, #5c1111);
+  color: #fff3f3;
+  border-color: #ff5252;
+  box-shadow: 6px 6px 0 #1b0000;
+}
+
+.ending-panel.death-ending h2 {
+  color: #ff8a80;
 }
 
 .reset-area {
