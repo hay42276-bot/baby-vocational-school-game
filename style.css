@@ -63,6 +63,13 @@ body {
   font-size: 22px;
 }
 
+.sub-title {
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-size: 17px;
+  color: #e65100;
+}
+
 .hero-panel {
   grid-column: span 2;
   display: flex;
@@ -228,6 +235,18 @@ button:active {
   box-shadow: 1px 1px 0 #263238;
 }
 
+button.locked {
+  background: #cfd8dc;
+  color: #78909c;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0 #78909c;
+}
+
+button.locked:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 #78909c;
+}
+
 .map-panel {
   background: linear-gradient(135deg, #ffffff, #e8f5e9);
 }
@@ -333,16 +352,21 @@ button:active {
   padding: 12px;
   line-height: 1.7;
   font-weight: bold;
+  white-space: pre-line;
 }
 
-.tool-panel ul {
+.tool-panel ul,
+.death-book-panel ul,
+.unlock-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.tool-panel li {
+.tool-panel li,
+.death-book-panel li,
+.unlock-list li {
   background: #f1f8e9;
   border: 2px solid #8bc34a;
   border-radius: 12px;
@@ -351,12 +375,37 @@ button:active {
   line-height: 1.5;
 }
 
-.tool-panel li span {
+.tool-panel li span,
+.death-book-panel li span {
   display: block;
   font-size: 12px;
   color: #455a64;
   font-weight: normal;
   margin-top: 4px;
+}
+
+.active-tool-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.active-tool-buttons button {
+  background: #b2ebf2;
+}
+
+.empty-tip {
+  color: #78909c;
+  font-size: 14px;
+}
+
+.active-effect-box {
+  margin-top: 14px;
+  padding: 12px;
+  background: #e3f2fd;
+  border: 2px solid #64b5f6;
+  border-radius: 12px;
+  line-height: 1.6;
 }
 
 .progress-panel {
@@ -382,6 +431,31 @@ button:active {
 
 #progressText {
   font-weight: bold;
+}
+
+.save-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.save-buttons button:nth-child(1) {
+  background: #a5d6a7;
+}
+
+.save-buttons button:nth-child(2) {
+  background: #90caf9;
+}
+
+.save-buttons button:nth-child(3) {
+  background: #ef9a9a;
+}
+
+#saveStatus {
+  margin-top: 12px;
+  line-height: 1.6;
+  font-weight: bold;
+  color: #455a64;
 }
 
 .event-panel {
