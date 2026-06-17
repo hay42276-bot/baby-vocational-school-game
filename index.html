@@ -92,15 +92,15 @@
       <section class="panel map-panel">
         <h2>校园地图</h2>
         <p class="tip">
-          点击地点触发随机校园事件。当前版本死亡率更高，道具可以降低危险或提升判定。
+          地图会逐步解锁。点击地点触发随机事件。死亡率较高，道具可以主动使用降低风险。
         </p>
 
         <div class="map-buttons">
-          <button onclick="visitArea('classroom')">教室</button>
-          <button onclick="visitArea('canteen')">食堂</button>
-          <button onclick="visitArea('playground')">操场</button>
-          <button onclick="visitArea('workshop')">实训车间</button>
-          <button onclick="visitArea('dorm')">宿舍</button>
+          <button id="btnClassroom" onclick="visitArea('classroom')">教室</button>
+          <button id="btnCanteen" onclick="visitArea('canteen')">食堂</button>
+          <button id="btnPlayground" onclick="visitArea('playground')">操场</button>
+          <button id="btnWorkshop" onclick="visitArea('workshop')">实训车间</button>
+          <button id="btnDorm" onclick="visitArea('dorm')">宿舍</button>
         </div>
 
         <div class="current-event-box" id="currentEventBox">
@@ -126,6 +126,16 @@
         <ul id="toolList">
           <li>暂无工具</li>
         </ul>
+
+        <h3 class="sub-title">主动使用工具</h3>
+        <div id="activeToolButtons" class="active-tool-buttons">
+          <p class="empty-tip">暂无可主动使用的工具</p>
+        </div>
+
+        <div class="active-effect-box">
+          <strong>当前主动效果：</strong>
+          <span id="activeEffectText">无</span>
+        </div>
       </section>
 
       <section class="panel progress-panel">
@@ -134,6 +144,33 @@
           <div id="progressFill"></div>
         </div>
         <p id="progressText">进度：0 / 100</p>
+
+        <h3 class="sub-title">地图解锁条件</h3>
+        <ul class="unlock-list">
+          <li>教室：默认解锁</li>
+          <li>食堂：默认解锁</li>
+          <li>操场：足 ≥ 2 或通关进度 ≥ 15</li>
+          <li>实训车间：脑 ≥ 3 或解锁奶瓶扳手</li>
+          <li>宿舍：文口 ≥ 3 或通关进度 ≥ 30</li>
+        </ul>
+      </section>
+
+      <section class="panel death-book-panel">
+        <h2>死亡图鉴</h2>
+        <p class="tip">死亡后会记录到图鉴。重新开始不会清空图鉴，清除存档才会清空。</p>
+        <ul id="deathBookList">
+          <li>暂无死亡记录</li>
+        </ul>
+      </section>
+
+      <section class="panel save-panel">
+        <h2>存档系统</h2>
+        <div class="save-buttons">
+          <button onclick="saveGame()">保存游戏</button>
+          <button onclick="loadGame()">读取存档</button>
+          <button onclick="clearSave()">清除存档</button>
+        </div>
+        <p id="saveStatus">当前没有执行存档操作。</p>
       </section>
 
       <section class="panel event-panel">
