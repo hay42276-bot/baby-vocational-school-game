@@ -270,6 +270,71 @@ button:active {
   grid-column: span 2;
 }
 
+.current-event-box {
+  margin-top: 18px;
+  background: #fffdf2;
+  border: 3px solid #263238;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: inset 0 0 0 3px rgba(255, 202, 40, 0.35);
+}
+
+.current-event-box.danger {
+  background: #fff1f1;
+  border-color: #c62828;
+  box-shadow: inset 0 0 0 3px rgba(239, 83, 80, 0.35);
+}
+
+.current-event-box.success {
+  background: #f1fff3;
+  border-color: #2e7d32;
+  box-shadow: inset 0 0 0 3px rgba(102, 187, 106, 0.35);
+}
+
+.current-event-box.death {
+  background: #2b0000;
+  color: #fff3f3;
+  border-color: #ff5252;
+  box-shadow: inset 0 0 0 3px rgba(255, 82, 82, 0.5);
+}
+
+.current-event-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #546e7a;
+}
+
+.current-event-box.death .current-event-top {
+  color: #ffcccb;
+}
+
+#currentEventTitle {
+  color: #e65100;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.current-event-box.death #currentEventTitle {
+  color: #ff8a80;
+}
+
+#currentEventText {
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.current-result {
+  background: rgba(38, 50, 56, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  line-height: 1.7;
+  font-weight: bold;
+}
+
 .tool-panel ul {
   list-style: none;
   display: flex;
@@ -283,6 +348,15 @@ button:active {
   border-radius: 12px;
   padding: 10px 12px;
   font-weight: bold;
+  line-height: 1.5;
+}
+
+.tool-panel li span {
+  display: block;
+  font-size: 12px;
+  color: #455a64;
+  font-weight: normal;
+  margin-top: 4px;
 }
 
 .progress-panel {
@@ -409,5 +483,9 @@ button:active {
 
   .map-buttons button:nth-child(5) {
     grid-column: span 1;
+  }
+
+  .current-event-top {
+    flex-direction: column;
   }
 }
