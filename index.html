@@ -10,7 +10,7 @@
   <div class="game-wrapper">
     <header class="game-header">
       <h1>职高婴儿进化录</h1>
-      <p>一个荒诞幻想风格的新生婴儿，正在普通职业高中里努力进化。</p>
+      <p>出生于职高女厕所的荒诞婴儿，正在校园里进行危险进化。</p>
     </header>
 
     <main class="game-main">
@@ -91,7 +91,9 @@
 
       <section class="panel map-panel">
         <h2>校园地图</h2>
-        <p class="tip">点击地点触发随机校园事件。注意：每个区域都有小概率触发死亡结局。</p>
+        <p class="tip">
+          点击地点触发随机校园事件。当前版本死亡率更高，道具可以降低危险或提升判定。
+        </p>
 
         <div class="map-buttons">
           <button onclick="visitArea('classroom')">教室</button>
@@ -99,6 +101,23 @@
           <button onclick="visitArea('playground')">操场</button>
           <button onclick="visitArea('workshop')">实训车间</button>
           <button onclick="visitArea('dorm')">宿舍</button>
+        </div>
+
+        <div class="current-event-box" id="currentEventBox">
+          <div class="current-event-top">
+            <span id="currentAreaText">出生地：职高女厕所</span>
+            <span id="dangerText">危险率：未知</span>
+          </div>
+
+          <h3 id="currentEventTitle">开场事件：女厕所出生</h3>
+
+          <p id="currentEventText">
+            你出生在职业高中女厕所的第三个隔间。门外是上课铃，门内是命运的第一声啼哭。
+          </p>
+
+          <div id="currentResultText" class="current-result">
+            你获得初始成长点 5。请先加点，或直接进入校园地图冒险。
+          </div>
         </div>
       </section>
 
@@ -118,7 +137,7 @@
       </section>
 
       <section class="panel event-panel">
-        <h2>事件记录</h2>
+        <h2>历史记录</h2>
         <div id="eventLog">
           【开场】你出生在职业高中女厕所的第三个隔间。门外是上课铃，门内是命运的第一声啼哭。你还不会走路，但你已经知道：这所学校，就是你的进化战场。
         </div>
