@@ -1,24 +1,47 @@
-let gameState = {
-  growthPoints: 5,
-  stats: {
-    brain: 0,
-    feet: 0,
-    speech: 0,
-    bite: 0,
-    hands: 0
-  },
-  tools: [],
-  progress: 0,
-  gameEnded: false,
-  deathCount: 0,
-  visitedAreas: {
-    classroom: 0,
-    canteen: 0,
-    playground: 0,
-    workshop: 0,
-    dorm: 0
-  }
-};
+const SAVE_KEY = "babyVocationalSchoolGameSaveV3";
+
+let gameState = createNewGameState([]);
+
+function createNewGameState(oldDeathBook) {
+  return {
+    growthPoints: 5,
+    stats: {
+      brain: 0,
+      feet: 0,
+      speech: 0,
+      bite: 0,
+      hands: 0
+    },
+    tools: [],
+    progress: 0,
+    gameEnded: false,
+    deathCount: 0,
+    endingName: "",
+    deathBook: oldDeathBook || [],
+    unlockedAreas: {
+      classroom: true,
+      canteen: true,
+      playground: false,
+      workshop: false,
+      dorm: false
+    },
+    visitedAreas: {
+      classroom: 0,
+      canteen: 0,
+      playground: 0,
+      workshop: 0,
+      dorm: 0
+    },
+    activeEffect: {
+      name: "无",
+      powerBonus: 0,
+      deathReduction: 0,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0
+    }
+  };
+}
 
 const openingText =
   "【开场】你出生在职业高中女厕所的第三个隔间。\n" +
@@ -45,7 +68,7 @@ const toolUnlocks = [
   {
     name: "奶瓶扳手",
     description: "用奶瓶和废旧扳手拼成的第一件职高神器。",
-    effectText: "脑判定 +1，手判定 +1，实训车间死亡率降低 6%。",
+    effectText: "被动：脑 +1，手 +1，实训车间死亡率 -6%。主动：下一次脑/手类判定额外 +2。",
     conditions: {
       brain: 3
     },
@@ -56,13 +79,19 @@ const toolUnlocks = [
     deathReduction: {
       workshop: 0.06
     },
-    rewardBonus: 0,
-    progressBonus: 0
+    activeEffect: {
+      name: "奶瓶扳手强化",
+      powerBonus: 2,
+      deathReduction: 0,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0
+    }
   },
   {
     name: "口水发电机",
     description: "通过婴儿口水产生微弱电流的荒诞装置。",
-    effectText: "脑判定 +1，文口判定 +2，教室死亡率降低 5%，成功时成长点额外 +1。",
+    effectText: "被动：脑 +1，文口 +2，教室死亡率 -5%，成功成长点 +1。主动：下一次事件死亡率 -15%。",
     conditions: {
       brain: 6
     },
@@ -74,12 +103,20 @@ const toolUnlocks = [
       classroom: 0.05
     },
     rewardBonus: 1,
-    progressBonus: 0
+    progressBonus: 0,
+    activeEffect: {
+      name: "口水电流护盾",
+      powerBonus: 0,
+      deathReduction: 0.15,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0
+    }
   },
   {
     name: "课桌滑板",
     description: "拆下课桌面板改造成的低空爬行载具。",
-    effectText: "足判定 +2，操场死亡率降低 6%，成功时通关进度额外 +2。",
+    effectText: "被动：足 +2，操场死亡率 -6%，成功进度 +2。主动：下一次事件判定 +1，死亡率 -10%。",
     conditions: {
       brain: 6,
       feet: 2
@@ -91,12 +128,20 @@ const toolUnlocks = [
       playground: 0.06
     },
     rewardBonus: 0,
-    progressBonus: 2
+    progressBonus: 2,
+    activeEffect: {
+      name: "课桌滑板冲刺",
+      powerBonus: 1,
+      deathReduction: 0.1,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0
+    }
   },
   {
     name: "钢牙护齿套",
     description: "由实训车间废料打磨而成的婴儿护齿装备。",
-    effectText: "武口判定 +2，食堂死亡率降低 7%。",
+    effectText: "被动：武口 +2，食堂死亡率 -7%。主动：下一次武口类判定额外 +3。",
     conditions: {
       brain: 5,
       bite: 4
@@ -108,12 +153,20 @@ const toolUnlocks = [
       canteen: 0.07
     },
     rewardBonus: 0,
-    progressBonus: 0
+    progressBonus: 0,
+    activeEffect: {
+      name: "钢牙咬合爆发",
+      powerBonus: 3,
+      deathReduction: 0,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0
+    }
   },
   {
     name: "摇篮喷射背包",
     description: "把宿舍摇篮改造成短距离喷射装置。",
-    effectText: "足判定 +2，手判定 +1，宿舍和操场死亡率降低 8%。",
+    effectText: "被动：足 +2，手 +1，宿舍和操场死亡率 -8%。主动：下一次若触发死亡，有 60% 概率逃生。",
     conditions: {
       brain: 9,
       hands: 3
@@ -127,12 +180,20 @@ const toolUnlocks = [
       playground: 0.08
     },
     rewardBonus: 0,
-    progressBonus: 1
+    progressBonus: 1,
+    activeEffect: {
+      name: "摇篮喷射逃生",
+      powerBonus: 0,
+      deathReduction: 0,
+      progressBonus: 0,
+      rewardBonus: 0,
+      rescueChance: 0.6
+    }
   },
   {
     name: "旧校徽护身符",
     description: "从宿舍床底摸出的旧校徽，似乎吸收过无数届学生的怨念。",
-    effectText: "所有地图死亡率降低 3%，所有事件随机发挥 +1。",
+    effectText: "被动：所有地图死亡率 -3%，所有事件判定 +1。主动：下一次事件死亡率 -10%，奖励成长点 +2。",
     conditions: {
       progress: 45
     },
@@ -142,7 +203,15 @@ const toolUnlocks = [
     },
     rewardBonus: 0,
     progressBonus: 0,
-    randomPowerBonus: 1
+    randomPowerBonus: 1,
+    activeEffect: {
+      name: "旧校徽庇护",
+      powerBonus: 0,
+      deathReduction: 0.1,
+      progressBonus: 0,
+      rewardBonus: 2,
+      rescueChance: 0
+    }
   }
 ];
 
@@ -462,12 +531,30 @@ function addStat(statName) {
   );
 
   checkToolUnlocks();
+  updateMapUnlocks();
   updateDisplay();
+  autoSaveGame();
 }
 
 function visitArea(areaName) {
   if (gameState.gameEnded) {
     addLog("游戏已经结束。请点击重新开始，开启新的职高婴儿命运。");
+    return;
+  }
+
+  updateMapUnlocks();
+
+  if (!gameState.unlockedAreas[areaName]) {
+    const message = `${mapNames[areaName]}尚未解锁。请先提升属性或推进通关进度。`;
+    addLog(message);
+    showCurrentEvent(
+      "地图未解锁",
+      `${mapNames[areaName]}暂不可进入`,
+      message,
+      "继续探索已解锁区域，获得成长点后再来。",
+      "danger",
+      "危险率：未知"
+    );
     return;
   }
 
@@ -483,7 +570,15 @@ function visitArea(areaName) {
   const deathRoll = Math.random();
 
   if (deathRoll < deathChance) {
-    triggerDeathEnding(areaName, randomState, deathChance);
+    const rescued = tryActiveRescue(areaName, randomState, deathChance);
+
+    if (!rescued) {
+      triggerDeathEnding(areaName, randomState, deathChance);
+    }
+
+    clearActiveEffect();
+    updateDisplay();
+    autoSaveGame();
     return;
   }
 
@@ -495,6 +590,7 @@ function visitArea(areaName) {
   const toolBonus = calculateToolBonus(event.stat);
   const randomBonus = Math.floor(Math.random() * 3);
   const randomPowerBonus = calculateRandomPowerBonus();
+  const activePowerBonus = gameState.activeEffect.powerBonus;
 
   let finalDifficulty = event.difficulty + randomState.difficultyChange;
 
@@ -502,13 +598,19 @@ function visitArea(areaName) {
     finalDifficulty = 1;
   }
 
-  const finalPower = statValue + toolBonus + randomBonus + randomPowerBonus;
+  const finalPower =
+    statValue +
+    toolBonus +
+    randomBonus +
+    randomPowerBonus +
+    activePowerBonus;
 
   let logText = "";
   logText += `【进入区域：${mapNames[areaName]}】\n`;
   logText += `随机校园状态：${randomState.name}\n`;
   logText += `${randomState.description}\n`;
-  logText += `本次死亡率：${formatPercent(deathChance)}\n\n`;
+  logText += `本次死亡率：${formatPercent(deathChance)}\n`;
+  logText += `主动效果：${gameState.activeEffect.name}\n\n`;
   logText += `【${event.title}】\n`;
   logText += `${event.description}\n`;
   logText += `判定属性：${statNames[event.stat]}\n`;
@@ -516,6 +618,7 @@ function visitArea(areaName) {
   logText += `工具加成：${toolBonus}\n`;
   logText += `随机发挥：${randomBonus}\n`;
   logText += `特殊加成：${randomPowerBonus}\n`;
+  logText += `主动加成：${activePowerBonus}\n`;
   logText += `最终判定值：${finalPower}\n`;
   logText += `最终难度：${finalDifficulty}\n`;
 
@@ -524,13 +627,15 @@ function visitArea(areaName) {
       Math.floor(Math.random() * 3) +
       2 +
       randomState.rewardChange +
-      calculateRewardBonus();
+      calculateRewardBonus() +
+      gameState.activeEffect.rewardBonus;
 
     let gainedProgress =
       Math.floor(Math.random() * 8) +
       8 +
       randomState.rewardChange +
-      calculateProgressBonus();
+      calculateProgressBonus() +
+      gameState.activeEffect.progressBonus;
 
     if (gainedPoints < 1) {
       gainedPoints = 1;
@@ -603,9 +708,92 @@ function visitArea(areaName) {
 
   addLog(logText);
 
+  clearActiveEffect();
   checkToolUnlocks();
+  updateMapUnlocks();
   checkEnding();
   updateDisplay();
+  autoSaveGame();
+}
+
+function useTool(toolName) {
+  if (gameState.gameEnded) {
+    addLog("游戏已经结束，不能使用工具。");
+    return;
+  }
+
+  if (!gameState.tools.includes(toolName)) {
+    addLog(`你还没有解锁【${toolName}】。`);
+    return;
+  }
+
+  const tool = getToolByName(toolName);
+
+  if (!tool || !tool.activeEffect) {
+    addLog(`【${toolName}】没有主动效果。`);
+    return;
+  }
+
+  gameState.activeEffect = {
+    name: tool.activeEffect.name,
+    powerBonus: tool.activeEffect.powerBonus || 0,
+    deathReduction: tool.activeEffect.deathReduction || 0,
+    progressBonus: tool.activeEffect.progressBonus || 0,
+    rewardBonus: tool.activeEffect.rewardBonus || 0,
+    rescueChance: tool.activeEffect.rescueChance || 0
+  };
+
+  addLog(`你主动使用了【${toolName}】。下一次地图事件将获得效果：${tool.activeEffect.name}`);
+
+  showCurrentEvent(
+    "主动工具",
+    `使用工具：${toolName}`,
+    tool.description,
+    `已激活：${tool.activeEffect.name}。该效果会在下一次进入地图后消耗。`,
+    "success",
+    "危险率：下一次事件可能降低"
+  );
+
+  updateDisplay();
+  autoSaveGame();
+}
+
+function tryActiveRescue(areaName, randomState, deathChance) {
+  if (gameState.activeEffect.rescueChance <= 0) {
+    return false;
+  }
+
+  const rescueRoll = Math.random();
+
+  if (rescueRoll <= gameState.activeEffect.rescueChance) {
+    const rescueText =
+      `你原本即将触发死亡事件，但主动效果【${gameState.activeEffect.name}】发动。\n` +
+      `你从 ${mapNames[areaName]} 的死亡边缘逃了回来。\n` +
+      `本次死亡率原本为 ${formatPercent(deathChance)}。`;
+
+    gameState.progress += 3;
+
+    if (gameState.progress > 100) {
+      gameState.progress = 100;
+    }
+
+    addLog(rescueText);
+
+    showCurrentEvent(
+      mapNames[areaName],
+      "主动工具救援成功",
+      `随机校园状态：${randomState.name}。${randomState.description}`,
+      rescueText,
+      "success",
+      `危险率：${formatPercent(deathChance)}，已逃生`
+    );
+
+    return true;
+  }
+
+  addLog(`主动效果【${gameState.activeEffect.name}】尝试救援失败。`);
+
+  return false;
 }
 
 function getRandomMapState() {
@@ -618,6 +806,7 @@ function calculateDeathChance(areaName, randomState) {
   let chance = deathEvent.baseDeathChance + randomState.deathChange;
 
   chance -= calculateDeathReduction(areaName);
+  chance -= gameState.activeEffect.deathReduction;
 
   if (gameState.progress >= 75) {
     chance += 0.04;
@@ -627,8 +816,8 @@ function calculateDeathChance(areaName, randomState) {
     chance += 0.03;
   }
 
-  if (chance < 0.08) {
-    chance = 0.08;
+  if (chance < 0.05) {
+    chance = 0.05;
   }
 
   if (chance > 0.45) {
@@ -643,6 +832,9 @@ function triggerDeathEnding(areaName, randomState, deathChance) {
 
   gameState.gameEnded = true;
   gameState.deathCount++;
+  gameState.endingName = deathEvent.title;
+
+  addDeathToBook(deathEvent, areaName);
 
   const endingPanel = document.getElementById("endingPanel");
   const endingText = document.getElementById("endingText");
@@ -687,12 +879,25 @@ function triggerDeathEnding(areaName, randomState, deathChance) {
   updateDisplay();
 }
 
+function addDeathToBook(deathEvent, areaName) {
+  const exists = gameState.deathBook.some(function (item) {
+    return item.title === deathEvent.title;
+  });
+
+  if (!exists) {
+    gameState.deathBook.push({
+      title: deathEvent.title,
+      area: mapNames[areaName],
+      description: deathEvent.description
+    });
+  }
+}
+
 function calculateToolBonus(statName) {
   let bonus = 0;
 
   for (let i = 0; i < gameState.tools.length; i++) {
-    const toolName = gameState.tools[i];
-    const tool = getToolByName(toolName);
+    const tool = getToolByName(gameState.tools[i]);
 
     if (tool && tool.statBonus && tool.statBonus[statName]) {
       bonus += tool.statBonus[statName];
@@ -706,8 +911,7 @@ function calculateDeathReduction(areaName) {
   let reduction = 0;
 
   for (let i = 0; i < gameState.tools.length; i++) {
-    const toolName = gameState.tools[i];
-    const tool = getToolByName(toolName);
+    const tool = getToolByName(gameState.tools[i]);
 
     if (tool && tool.deathReduction) {
       if (tool.deathReduction[areaName]) {
@@ -835,6 +1039,23 @@ function checkToolCondition(tool) {
   return true;
 }
 
+function updateMapUnlocks() {
+  gameState.unlockedAreas.classroom = true;
+  gameState.unlockedAreas.canteen = true;
+
+  if (gameState.stats.feet >= 2 || gameState.progress >= 15) {
+    gameState.unlockedAreas.playground = true;
+  }
+
+  if (gameState.stats.brain >= 3 || gameState.tools.includes("奶瓶扳手")) {
+    gameState.unlockedAreas.workshop = true;
+  }
+
+  if (gameState.stats.speech >= 3 || gameState.progress >= 30) {
+    gameState.unlockedAreas.dorm = true;
+  }
+}
+
 function checkEnding() {
   if (gameState.gameEnded) {
     return;
@@ -847,12 +1068,11 @@ function checkEnding() {
     gameState.stats.bite +
     gameState.stats.hands;
 
-  const hasEnoughProgress = gameState.progress >= 100;
-  const hasEnoughStats = totalStats >= 18;
-  const hasFinalTool = gameState.tools.includes("摇篮喷射背包");
+  if (gameState.progress >= 100 && totalStats >= 16) {
+    const ending = getFinalEnding();
 
-  if (hasEnoughProgress && hasEnoughStats && hasFinalTool) {
     gameState.gameEnded = true;
+    gameState.endingName = ending.name;
 
     const endingPanel = document.getElementById("endingPanel");
     const endingText = document.getElementById("endingText");
@@ -861,22 +1081,94 @@ function checkEnding() {
     endingPanel.style.display = "block";
 
     endingText.innerHTML =
-      "最终挑战完成！<br>" +
-      "你从一个出生于职高女厕所的新生婴儿，进化成了职高传说级校园生物。<br>" +
-      "你用脑发明工具，用足穿越操场，用文口说服老师，用武口啃开命运，用双手改造未来。<br>" +
-      "结局：职高校园进化王！";
+      `${ending.name}<br><br>` +
+      `${ending.description}<br><br>` +
+      "点击“重新开始”可以体验另一条成长路线。";
 
     showCurrentEvent(
       "最终通关",
-      "职高校园进化王",
-      "你完成了全部校园挑战。",
-      "你成功通关，成为职业高中里的荒诞传说。",
+      ending.name,
+      "你完成了职业高中最终挑战。",
+      ending.description,
       "success",
       "危险率：已结束"
     );
 
-    addLog("你已经达成通关条件，解锁最终结局！");
+    addLog(`你已经达成通关条件，解锁结局：${ending.name}`);
   }
+}
+
+function getFinalEnding() {
+  const stats = gameState.stats;
+  const highest = getHighestStat();
+
+  if (gameState.tools.length >= 5 && stats.brain >= 8) {
+    return {
+      name: "结局：工具发明大师",
+      description:
+        "你没有以普通学生的方式毕业，而是用奶瓶、课桌、扳手和口水发电机重写了整个职高的实训体系。"
+    };
+  }
+
+  if (highest === "feet") {
+    return {
+      name: "结局：操场逃逸传说",
+      description:
+        "你的足部进化突破常理。毕业那天，没人看清你离开校门的方向，只看到一道贴地飞行的婴儿残影。"
+    };
+  }
+
+  if (highest === "speech") {
+    return {
+      name: "结局：校园谈判专家",
+      description:
+        "你用文口说服老师、同学、食堂阿姨和宿管，最终用婴儿语言完成了全校最离谱的毕业演讲。"
+    };
+  }
+
+  if (highest === "bite") {
+    return {
+      name: "结局：食堂钢牙霸主",
+      description:
+        "你的武口成为校园传说。从此以后，食堂最硬的馒头见到你都会自动变软。"
+    };
+  }
+
+  if (highest === "hands") {
+    return {
+      name: "结局：实训连击工匠",
+      description:
+        "你的双手快到看不清残影。实训车间的机器认可了你，老师也决定不再追问你是不是人类。"
+    };
+  }
+
+  if (highest === "brain") {
+    return {
+      name: "结局：职高脑力怪婴",
+      description:
+        "你靠脑力破解课堂、车间和宿舍的全部荒诞规则，最终成为职业高中最危险的思考型婴儿。"
+    };
+  }
+
+  return {
+    name: "结局：普通但努力的毕业婴儿",
+    description:
+      "你没有成为某一方面的极端传说，但你认真经历了职高生活，带着奶瓶和毕业证完成了成长。"
+  };
+}
+
+function getHighestStat() {
+  let highestName = "brain";
+  let highestValue = gameState.stats.brain;
+
+  for (const key in gameState.stats) {
+    if (gameState.stats[key] > highestValue) {
+      highestName = key;
+      highestValue = gameState.stats[key];
+    }
+  }
+
+  return highestName;
 }
 
 function updateDisplay() {
@@ -889,6 +1181,10 @@ function updateDisplay() {
   document.getElementById("handsValue").textContent = gameState.stats.hands;
 
   updateToolList();
+  updateActiveToolButtons();
+  updateActiveEffectText();
+  updateDeathBookList();
+  updateMapButtons();
 
   const progressFill = document.getElementById("progressFill");
   progressFill.style.width = gameState.progress + "%";
@@ -925,6 +1221,86 @@ function updateToolList() {
   }
 }
 
+function updateActiveToolButtons() {
+  const container = document.getElementById("activeToolButtons");
+  container.innerHTML = "";
+
+  if (gameState.tools.length === 0) {
+    container.innerHTML = '<p class="empty-tip">暂无可主动使用的工具</p>';
+    return;
+  }
+
+  for (let i = 0; i < gameState.tools.length; i++) {
+    const tool = getToolByName(gameState.tools[i]);
+
+    if (tool && tool.activeEffect) {
+      const button = document.createElement("button");
+      button.textContent = `使用：${tool.name}`;
+      button.onclick = function () {
+        useTool(tool.name);
+      };
+      container.appendChild(button);
+    }
+  }
+}
+
+function updateActiveEffectText() {
+  const activeEffectText = document.getElementById("activeEffectText");
+
+  if (gameState.activeEffect.name === "无") {
+    activeEffectText.textContent = "无";
+    return;
+  }
+
+  activeEffectText.textContent =
+    `${gameState.activeEffect.name}，将在下一次地图事件后消耗。`;
+}
+
+function updateDeathBookList() {
+  const list = document.getElementById("deathBookList");
+  list.innerHTML = "";
+
+  if (!gameState.deathBook || gameState.deathBook.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "暂无死亡记录";
+    list.appendChild(li);
+    return;
+  }
+
+  for (let i = 0; i < gameState.deathBook.length; i++) {
+    const item = gameState.deathBook[i];
+    const li = document.createElement("li");
+    li.innerHTML = `${item.title}<span>地点：${item.area}。${item.description}</span>`;
+    list.appendChild(li);
+  }
+}
+
+function updateMapButtons() {
+  updateMapUnlocks();
+
+  setMapButtonState("btnClassroom", gameState.unlockedAreas.classroom, "教室");
+  setMapButtonState("btnCanteen", gameState.unlockedAreas.canteen, "食堂");
+  setMapButtonState("btnPlayground", gameState.unlockedAreas.playground, "操场");
+  setMapButtonState("btnWorkshop", gameState.unlockedAreas.workshop, "实训车间");
+  setMapButtonState("btnDorm", gameState.unlockedAreas.dorm, "宿舍");
+}
+
+function setMapButtonState(buttonId, unlocked, name) {
+  const button = document.getElementById(buttonId);
+
+  if (!button) {
+    return;
+  }
+
+  if (unlocked) {
+    button.classList.remove("locked");
+    button.textContent = name;
+  } else {
+    button.classList.add("locked");
+    button.textContent = `${name}（未解锁）`;
+  }
+}
+
 function updateHeroLevel() {
   const totalStats =
     gameState.stats.brain +
@@ -944,9 +1320,9 @@ function updateHeroLevel() {
   }
 
   if (gameState.gameEnded) {
-    heroLevelText.textContent = "当前阶段：职高传说";
+    heroLevelText.textContent = "当前阶段：" + gameState.endingName;
     storyText.textContent =
-      "你完成了从女厕所出生到校园进化王的荒诞旅程。";
+      "你完成了从女厕所出生到校园结局的荒诞旅程。";
     return;
   }
 
@@ -957,7 +1333,7 @@ function updateHeroLevel() {
   } else if (totalStats < 10) {
     heroLevelText.textContent = "当前阶段：走廊爬行高手";
     storyText.textContent =
-      "你已经能在教室、食堂和宿舍之间熟练移动，老师开始记住你的名字。";
+      "你已经能在教室、食堂和走廊之间熟练移动，老师开始记住你的名字。";
   } else if (totalStats < 18) {
     heroLevelText.textContent = "当前阶段：实训车间小怪才";
     storyText.textContent =
@@ -1005,32 +1381,95 @@ function addLog(message) {
     `[${timeText}] ${message}\n\n` + eventLog.textContent;
 }
 
+function clearActiveEffect() {
+  gameState.activeEffect = {
+    name: "无",
+    powerBonus: 0,
+    deathReduction: 0,
+    progressBonus: 0,
+    rewardBonus: 0,
+    rescueChance: 0
+  };
+}
+
 function formatPercent(number) {
   return Math.round(number * 100) + "%";
 }
 
-function resetGame() {
-  gameState = {
-    growthPoints: 5,
-    stats: {
-      brain: 0,
-      feet: 0,
-      speech: 0,
-      bite: 0,
-      hands: 0
-    },
-    tools: [],
-    progress: 0,
-    gameEnded: false,
-    deathCount: 0,
-    visitedAreas: {
-      classroom: 0,
-      canteen: 0,
-      playground: 0,
-      workshop: 0,
-      dorm: 0
+function saveGame(silent) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+
+    if (!silent) {
+      document.getElementById("saveStatus").textContent = "游戏已保存。";
+      addLog("游戏已保存到浏览器本地。");
     }
-  };
+  } catch (error) {
+    document.getElementById("saveStatus").textContent = "保存失败，浏览器可能限制了本地存储。";
+  }
+}
+
+function autoSaveGame() {
+  saveGame(true);
+}
+
+function loadGame() {
+  const saveData = localStorage.getItem(SAVE_KEY);
+
+  if (!saveData) {
+    document.getElementById("saveStatus").textContent = "没有找到存档。";
+    addLog("没有找到可读取的存档。");
+    return;
+  }
+
+  try {
+    gameState = JSON.parse(saveData);
+
+    if (!gameState.deathBook) {
+      gameState.deathBook = [];
+    }
+
+    if (!gameState.activeEffect) {
+      clearActiveEffect();
+    }
+
+    document.getElementById("saveStatus").textContent = "存档读取成功。";
+    addLog("存档读取成功。");
+
+    if (gameState.gameEnded) {
+      document.getElementById("endingPanel").style.display = "block";
+
+      if (gameState.deathCount > 0) {
+        document.getElementById("endingPanel").classList.add("death-ending");
+        document.getElementById("endingText").innerHTML =
+          `${gameState.endingName}<br><br>这是你上次保存时的结局状态。`;
+      } else {
+        document.getElementById("endingPanel").classList.remove("death-ending");
+        document.getElementById("endingText").innerHTML =
+          `${gameState.endingName}<br><br>这是你上次保存时的结局状态。`;
+      }
+    } else {
+      document.getElementById("endingPanel").style.display = "none";
+      document.getElementById("endingPanel").classList.remove("death-ending");
+      document.getElementById("endingText").textContent = "";
+    }
+
+    updateDisplay();
+  } catch (error) {
+    document.getElementById("saveStatus").textContent = "读取失败，存档数据可能损坏。";
+  }
+}
+
+function clearSave() {
+  localStorage.removeItem(SAVE_KEY);
+  document.getElementById("saveStatus").textContent = "存档已清除。";
+  addLog("本地存档已清除。死亡图鉴也会在重新开始后清空。");
+}
+
+function resetGame() {
+  const oldDeathBook = gameState.deathBook || [];
+
+  gameState = createNewGameState(oldDeathBook);
 
   const endingPanel = document.getElementById("endingPanel");
   endingPanel.style.display = "none";
@@ -1049,6 +1488,7 @@ function resetGame() {
   );
 
   updateDisplay();
+  autoSaveGame();
 }
 
 function initGame() {
@@ -1063,6 +1503,7 @@ function initGame() {
     "危险率：未知"
   );
 
+  updateMapUnlocks();
   updateDisplay();
 }
 
